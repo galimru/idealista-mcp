@@ -15,7 +15,7 @@
 
 ---
 
-Connect your AI assistant to Idealista. Search for properties for sale or rent, filter by price, size, and rooms, and resolve location names to IDs — all through natural conversation.
+Connect your AI assistant to Idealista. Search for properties for sale or rent, filter by price, size, and rooms, search around a center point, and resolve location names to IDs — all through natural conversation.
 
 ## Quick Start
 
@@ -39,14 +39,19 @@ Add to `claude_desktop_config.json`:
 {
   "mcpServers": {
     "idealista": {
-      "command": "/path/to/idealista-mcp",
-      "env": {
-        "IDEALISTA_CLIENT_KEY": "your-client-key",
-        "IDEALISTA_CLIENT_SECRET": "your-client-secret",
-        "IDEALISTA_SIGNING_SECRET": "your-signing-secret"
-      }
+      "command": "/path/to/idealista-mcp"
     }
   }
+}
+```
+
+Then edit `~/.config/idealista-mcp/config.json`:
+
+```json
+{
+  "client_key": "your-client-key",
+  "client_secret": "your-client-secret",
+  "signing_secret": "your-signing-secret"
 }
 ```
 
@@ -55,25 +60,41 @@ Add to `claude_desktop_config.json`:
 | Tool | What it does |
 |------|--------------|
 | `search_locations` | Search for location IDs by name prefix (needed as input for `search_ads`) |
-| `search_ads` | Search property listings with filters for price, size, rooms, and more |
+| `search_ads` | Search property listings by location ID or by `center` + `distance`, with filters for price, size, rooms, and more |
 
 ### Example workflow
 
 1. Use `search_locations` with `prefix=Valencia` to get the location ID for Valencia
 2. Use `search_ads` with the returned `location_id` to browse listings
 
+You can also search by coordinates using:
+- `center` in `lat,lng` format
+- `distance` in metres
+
+`search_ads` accepts either `location_id` or `center` + `distance`, but not both together.
+
 ## Configuration
+
+**Config file**
+
+`idealista-mcp` stores required credentials in `~/.config/idealista-mcp/config.json`.
+If the file does not exist, the server creates it with placeholder values on first use.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `client_key` | Yes | OAuth client key (client ID) |
+| `client_secret` | Yes | OAuth client secret |
+| `signing_secret` | Yes | Raw HMAC-SHA256 signing secret for request authentication |
 
 **Environment variables**
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `IDEALISTA_CLIENT_KEY` | Yes | OAuth client key (client ID) |
-| `IDEALISTA_CLIENT_SECRET` | Yes | OAuth client secret |
-| `IDEALISTA_SIGNING_SECRET` | Yes | Raw HMAC-SHA256 signing secret for request authentication |
 | `IDEALISTA_DEBUG` | No | Set to any non-empty value to log HTTP traffic to stderr |
 
-A persistent session file is stored at `~/.config/idealista-mcp/session.json`. It holds a stable device identifier (generated once on first run) and the cached OAuth token so restarts reuse a valid token without re-fetching.
+The server starts and advertises tools even if the config file is incomplete. Missing credentials fail individual tool calls with an actionable error pointing at the config path.
+
+A persistent session file is stored at `~/.config/idealista-mcp/session.json`. It holds a stable device identifier (generated once on first authenticated call) and the cached OAuth token so restarts reuse a valid token without re-fetching.
 
 ## Notes
 

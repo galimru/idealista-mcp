@@ -2,7 +2,6 @@ package signing
 
 import (
 	"net/url"
-	"os"
 	"testing"
 )
 
@@ -49,8 +48,7 @@ func TestSortedEncode(t *testing.T) {
 }
 
 func TestSign(t *testing.T) {
-	os.Setenv("IDEALISTA_SIGNING_SECRET", "testSecret")
-	s, err := New()
+	s, err := New("testSecret")
 	if err != nil {
 		t.Fatalf("New() error: %v", err)
 	}
@@ -71,9 +69,8 @@ func TestSign(t *testing.T) {
 }
 
 func TestNewMissingSecret(t *testing.T) {
-	os.Unsetenv("IDEALISTA_SIGNING_SECRET")
-	_, err := New()
+	_, err := New("")
 	if err == nil {
-		t.Error("expected error when IDEALISTA_SIGNING_SECRET is missing")
+		t.Error("expected error when signing secret is missing")
 	}
 }

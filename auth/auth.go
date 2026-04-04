@@ -27,14 +27,11 @@ type Client struct {
 	httpClient *http.Client
 }
 
-// New creates a Client using IDEALISTA_CLIENT_KEY and IDEALISTA_CLIENT_SECRET
-// from the environment. The provided session is used to cache the access token
-// across process restarts.
-func New(sess *session.Session) (*Client, error) {
-	key := os.Getenv("IDEALISTA_CLIENT_KEY")
-	secret := os.Getenv("IDEALISTA_CLIENT_SECRET")
-	if key == "" || secret == "" {
-		return nil, fmt.Errorf("IDEALISTA_CLIENT_KEY and IDEALISTA_CLIENT_SECRET environment variables are required")
+// New creates a Client using config-provided credentials. The provided session
+// is used to cache the access token across process restarts.
+func New(sess *session.Session, key, secret string) (*Client, error) {
+	if strings.TrimSpace(key) == "" || strings.TrimSpace(secret) == "" {
+		return nil, fmt.Errorf("client key and client secret are required")
 	}
 
 	basicAuth := base64.StdEncoding.EncodeToString([]byte(url.QueryEscape(key) + ":" + url.QueryEscape(secret)))

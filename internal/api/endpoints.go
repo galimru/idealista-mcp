@@ -5,4 +5,6 @@ const (
 	TokenURL     = BaseURL + "/api/oauth/token"
 	LocationsURL = BaseURL + "/api/3/es/locations"
 	SearchURL    = BaseURL + "/api/3.5/es/search"
+	DetailURL    = BaseURL + "/api/3/es/detail"
+	StatsURL     = BaseURL + "/api/3.5/es/ads"
 )

@@ -2,6 +2,7 @@ package session
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -22,16 +23,23 @@ type Session struct {
 // Load reads the session file. If no file exists a new device_identifier is
 // generated and the session is saved before returning.
 func Load() (*Session, error) {
-	p, err := filePath()
+	p, err := FilePath()
 	if err != nil {
 		return nil, err
 	}
+	return LoadPath(p)
+}
 
-	s := &Session{path: p}
+// LoadPath reads the session file from path. If no file exists a new
+// device_identifier is generated and the session is saved before returning.
+func LoadPath(path string) (*Session, error) {
+	s := &Session{path: path}
 
-	data, err := os.ReadFile(p)
+	data, err := os.ReadFile(path)
 	if err == nil {
 		_ = json.Unmarshal(data, s)
+	} else if !os.IsNotExist(err) {
+		return nil, fmt.Errorf("read session %s: %w", path, err)
 	}
 
 	if s.DeviceIdentifier == "" {
@@ -56,7 +64,8 @@ func (s *Session) Save() error {
 	return os.WriteFile(s.path, data, 0600)
 }
 
-func filePath() (string, error) {
+// FilePath returns the default session file path.
+func FilePath() (string, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err

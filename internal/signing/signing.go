@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/url"
-	"os"
 	"sort"
 	"strings"
 
@@ -20,12 +19,11 @@ type Signer struct {
 	secret string
 }
 
-// New creates a Signer using the IDEALISTA_SIGNING_SECRET environment variable.
-// The raw secret is base64-encoded before use as the HMAC key.
-func New() (*Signer, error) {
-	raw := os.Getenv("IDEALISTA_SIGNING_SECRET")
-	if raw == "" {
-		return nil, fmt.Errorf("IDEALISTA_SIGNING_SECRET environment variable is required")
+// New creates a Signer using the provided raw signing secret. The raw secret is
+// base64-encoded before use as the HMAC key.
+func New(raw string) (*Signer, error) {
+	if strings.TrimSpace(raw) == "" {
+		return nil, fmt.Errorf("signing secret is required")
 	}
 	return &Signer{secret: base64.StdEncoding.EncodeToString([]byte(raw))}, nil
 }

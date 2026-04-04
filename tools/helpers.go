@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/galimru/idealista-mcp/client"
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
@@ -24,4 +25,12 @@ func structJSON(v any) (*mcp.CallToolResult, error) {
 		return nil, fmt.Errorf("marshal result: %w", err)
 	}
 	return mcp.NewToolResultText(string(out)), nil
+}
+
+func runtimeAPIClient(runtime *RuntimeProvider) (client.APIClient, error) {
+	apiClient, err := runtime.APIClient()
+	if err != nil {
+		return nil, fmt.Errorf("initialize runtime: %w", err)
+	}
+	return apiClient, nil
 }

@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/galimru/idealista-mcp/client"
 	"github.com/galimru/idealista-mcp/internal/api"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterLocationTools adds the search_locations tool to the MCP server.
-func RegisterLocationTools(s *server.MCPServer, c client.APIClient) {
+func RegisterLocationTools(s *server.MCPServer, runtime *RuntimeProvider) {
 	s.AddTool(
 		mcp.NewTool("search_locations",
 			mcp.WithDescription("Search Idealista locations by name prefix to obtain a locationId for property searches"),
@@ -33,6 +32,11 @@ func RegisterLocationTools(s *server.MCPServer, c client.APIClient) {
 			),
 		),
 		func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			apiClient, err := runtimeAPIClient(runtime)
+			if err != nil {
+				return nil, err
+			}
+
 			prefix, err := req.RequireString("prefix")
 			if err != nil {
 				return nil, err
@@ -52,7 +56,7 @@ func RegisterLocationTools(s *server.MCPServer, c client.APIClient) {
 				"operation":    {operation},
 			}
 
-			body, err := c.Get(ctx, api.LocationsURL, queryParams)
+			body, err := apiClient.Get(ctx, api.LocationsURL, queryParams)
 			if err != nil {
 				return nil, fmt.Errorf("search locations: %w", err)
 			}
