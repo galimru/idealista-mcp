@@ -13,12 +13,6 @@ const (
 	UserAgent  = "Dalvik/2.1.0 (Linux; U; Android 13; Pixel 7 Build/TQ3A.230805.001)"
 )
 
-const (
-	defaultClientKey     = "replace-with-client-key"
-	defaultClientSecret  = "replace-with-client-secret"
-	defaultSigningSecret = "replace-with-signing-secret"
-)
-
 // Config holds user-editable credentials loaded from config.json.
 type Config struct {
 	ClientKey     string `json:"client_key"`
@@ -26,7 +20,7 @@ type Config struct {
 	SigningSecret string `json:"signing_secret"`
 }
 
-// ValidationError reports missing or placeholder config fields.
+// ValidationError reports missing config fields.
 type ValidationError struct {
 	Path   string
 	Fields []string
@@ -42,7 +36,7 @@ func (e *ValidationError) Error() string {
 }
 
 // Load loads the user config from the default config location, creating it
-// with placeholder defaults when it does not yet exist.
+// with empty defaults when it does not yet exist.
 func Load() (*Config, error) {
 	path, err := FilePath()
 	if err != nil {
@@ -107,23 +101,19 @@ func ensureConfigFile(path string) error {
 }
 
 func defaultConfig() *Config {
-	return &Config{
-		ClientKey:     defaultClientKey,
-		ClientSecret:  defaultClientSecret,
-		SigningSecret: defaultSigningSecret,
-	}
+	return &Config{}
 }
 
 func validate(cfg *Config, path string) error {
 	var fields []string
 
-	if isUnset(cfg.ClientKey, defaultClientKey) {
+	if isUnset(cfg.ClientKey) {
 		fields = append(fields, "client_key")
 	}
-	if isUnset(cfg.ClientSecret, defaultClientSecret) {
+	if isUnset(cfg.ClientSecret) {
 		fields = append(fields, "client_secret")
 	}
-	if isUnset(cfg.SigningSecret, defaultSigningSecret) {
+	if isUnset(cfg.SigningSecret) {
 		fields = append(fields, "signing_secret")
 	}
 
@@ -134,7 +124,6 @@ func validate(cfg *Config, path string) error {
 	return nil
 }
 
-func isUnset(value, placeholder string) bool {
-	trimmed := strings.TrimSpace(value)
-	return trimmed == "" || trimmed == placeholder
+func isUnset(value string) bool {
+	return strings.TrimSpace(value) == ""
 }

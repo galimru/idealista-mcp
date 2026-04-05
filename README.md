@@ -78,7 +78,7 @@ You can also search by coordinates using:
 **Config file**
 
 `idealista-mcp` stores required credentials in `~/.config/idealista-mcp/config.json`.
-If the file does not exist, the server creates it with placeholder values on first use.
+If the file does not exist, the server creates it with empty string values on first use.
 
 | Field | Required | Description |
 |-------|----------|-------------|

@@ -69,7 +69,7 @@ func TestLoadPathValidationErrorIncludesPathAndFields(t *testing.T) {
 	content := `{
   "client_key": "",
   "client_secret": "secret",
-  "signing_secret": "replace-with-signing-secret"
+  "signing_secret": ""
 }`
 
 	if err := os.WriteFile(path, []byte(content), 0600); err != nil {
